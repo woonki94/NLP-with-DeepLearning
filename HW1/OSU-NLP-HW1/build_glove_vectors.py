@@ -1,5 +1,6 @@
+import os
 
-from datasets import load_dataset
+from datasets import load_dataset, load_from_disk
 from Vocabulary import Vocabulary
 import matplotlib.pyplot as plt
 from tqdm import tqdm
@@ -26,12 +27,19 @@ class UnimplementedFunctionError(Exception):
 # Main Skeleton Code Driver
 ################################################################################################
 def main_glove():
+	DATASET_DIR = "../dataset/"
 
-	logging.info("Loading dataset")
-	dataset = load_dataset("ag_news")
-	dataset_text =  [r['text'] for r in dataset['train']]
+	# Check if dataset is already stored
+	if os.path.exists(DATASET_DIR):
+		logging.info("Loading dataset")
+		dataset = load_from_disk(DATASET_DIR)
+	else:
+		logging.info("Downloading dataset")
+		dataset = load_dataset("ag_news")
+		dataset.save_to_disk(DATASET_DIR)
+
+	dataset_text = [r['text'] for r in dataset['train']]
 	dataset_labels = [r['label'] for r in dataset['train']]
-
 
 	logging.info("Building vocabulary")
 	vocab = Vocabulary(dataset_text)
@@ -48,7 +56,7 @@ def main_glove():
 
 	d = 32				# dimensionality of the vectors
 	B = 1024			# batch size (in number of word pairs)
-	maxEpoch = 5		# maximum number of epochs
+	maxEpoch = 20		# maximum number of epochs
 	learningRate = 0.1	# learning rate / step size for SGD
 	clip = 50			# gradient clip value 
 	m = 0.9				# moment parameter
@@ -114,13 +122,18 @@ def main_glove():
 
 
 			# REMOVE THIS ONCE YOU IMPLEMENT THIS SECTION
-			raise UnimplementedFunctionError("You have not yet implemented the batch gradients.")
+			#raise UnimplementedFunctionError("You have not yet implemented the batch gradients.")
 
 			# write expressions using numpy to implement the gradients you derive in 3.1. 
 			wordvecs_grad = np.zeros( (bSize,d) )
 			wordbiases_grad = np.zeros( (bSize,1) )
 			contextvecs_grad = np.zeros( (bSize,d) )
 			contextbiases_grad = np.zeros( (bSize,1) )
+
+			wordvecs_grad = 2 * fval * error * c_batch
+			wordbiases_grad = 2 * fval * error
+			contextvecs_grad = 2 * fval * error * w_batch
+			contextbiases_grad = 2 * fval * error
 
 			########################################################################
 	
