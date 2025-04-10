@@ -15,8 +15,8 @@ class TestFreqVec(unittest.TestCase):
         vocab = Vocabulary(corpus,min_freq = 1)
 
         C = compute_cooccurrence_matrix(corpus, vocab,window_size = 2)
-        print("\n",C)
-        print("\n")
+        #print("\n",C)
+        #print("\n")
 
         expected = np.array([
             [0, 1, 1, 0, 0, 0],  # I
@@ -32,7 +32,7 @@ class TestFreqVec(unittest.TestCase):
         vocab2 = Vocabulary(corpus2,min_freq = 1)
 
         C2 = compute_cooccurrence_matrix(corpus2, vocab2,window_size = 2)
-        print(C2)
+        #print(C2)
 
         expected2 = np.array([
             [0, 3, 2, 0],  # a

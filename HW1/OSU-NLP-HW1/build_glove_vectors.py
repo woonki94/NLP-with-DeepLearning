@@ -8,7 +8,7 @@ import numpy as np
 import logging
 import itertools
 from sklearn.manifold import TSNE
-from build_freq_vectors import compute_cooccurrence_matrix,plot_word_vectors_tsne
+from build_freq_vectors import compute_cooccurrence_matrix, plot_word_vectors_tsne, plot_zoomed_tsne
 
 import random
 random.seed(42)
@@ -79,7 +79,9 @@ def main_glove():
 	idx = np.vstack(np.nonzero(C)).T
 	shuf = list(range(idx.shape[0]))
 	logging.info("{} non-zero entries in the count matrix".format(idx.shape[0]))
-	
+
+	losses_per_iteration = []
+	losses_per_epoch = []
 
 	logging.info("Starting GloVe optimization")
 	for epoch in range(maxEpoch):
@@ -90,6 +92,7 @@ def main_glove():
 		# Start an epoch
 		logging.info("Epoch {} / {}: learning rate = {}".format(epoch+1,maxEpoch, learningRate))
 		loss = 0
+
 
 		# for each batch
 		for b in range(idx.shape[0]//B+1):
@@ -114,7 +117,6 @@ def main_glove():
 
 			# Combine the overall objective loss
 			loss += np.sum(fval*np.square(error))
-
 
 			########################################################################
 			# Task 3.2
@@ -163,13 +165,41 @@ def main_glove():
 			contextvecs[j,:] -= np.maximum(np.minimum(learningRate*contextvecs_momentum[j,:], clip),-clip)
 			contextbiases[j] -= np.maximum(np.minimum(learningRate*contextbiases_momentum[j], clip),-clip)
 
-
 			if b % 100 == 0 and b > 0:
 				logging.info("Iter {} / {}: avg. loss over last 100 batches = {}".format(b, idx.shape[0]//B, loss/(B*100)))
+				losses_per_iteration.append(loss/(B*100))
 				loss = 0
-	
+
+		losses_per_epoch.append(np.mean(losses_per_iteration[-(idx.shape[0] // B):]))
+
+	# Plot loss per iteration
+	plt.figure()
+	plt.plot(losses_per_iteration)
+	plt.title("Loss Convergence per Iteration")
+	plt.xlabel("Iteration")
+	plt.ylabel("Loss")
+	plt.grid(True)
+	plt.tight_layout()
+	#plt.show()
+	plt.savefig("./plots/loss_conv_iter.png", dpi=300)
+
+	# Plot average loss per epoch
+	plt.figure()
+	plt.plot(range(1, len(losses_per_epoch) + 1), losses_per_epoch, marker='o')
+	plt.title("Loss Convergence per Epoch")
+	plt.xlabel("Epoch")
+	plt.ylabel("Average Loss")
+	plt.grid(True)
+	plt.tight_layout()
+	#plt.show()
+	plt.savefig("./plots/loss_conv_epoch.png", dpi=300)
+
+
 	logging.info("Building TSNE plot")
-	plot_word_vectors_tsne(wordvecs, vocab)
+	plot_word_vectors_tsne(wordvecs, vocab, 'glove_tsne')
+	plot_zoomed_tsne(wordvecs, vocab, 'glove_tsne_zoomed01', xlim=(-15, -5), ylim=(30, 40))
+	plot_zoomed_tsne(wordvecs, vocab, 'glove_tsne_zoomed02', xlim=(-30, -20), ylim=(-40, -30))
+
 
 
 if __name__ == "__main__":

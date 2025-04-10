@@ -15,7 +15,7 @@ class UnimplementedFunctionError(Exception):
 
 class Vocabulary:
 
-	def __init__(self, corpus,min_freq=50):
+	def __init__(self, corpus,min_freq=30):
 
 		self.min_freq=min_freq
 		self.word2idx, self.idx2word, self.freq = self.build_vocab(corpus)
@@ -131,7 +131,7 @@ class Vocabulary:
 		plt.xlabel("Token ID (sorted by frequency)")
 		plt.ylabel("Frequency")
 		plt.tight_layout()
-		plt.savefig("token_frequency_distribution.png", dpi=600)
+		plt.savefig("./plots/token_frequency_distribution.png", dpi=600)
 
 		# Convert to numpy for vectorized ops
 		token_freq = np.array(token_freq)
@@ -153,7 +153,7 @@ class Vocabulary:
 
 
 		plt.axvline(x=included_count, color='red', linestyle='-')
-		label_text = f"{covered_fraction:.3f} coverage with freq ≥ {self.min_freq}"
+		label_text = f"{covered_fraction:.3f} covered"
 		plt.text(included_count + len(token_freq) * 0.01, 0.05, label_text,
 				 color='red', rotation=90, va='bottom')
 
@@ -163,7 +163,7 @@ class Vocabulary:
 		plt.grid(True, linestyle='--', linewidth=0.5)
 		plt.tight_layout()
 		#plt.show()
-		plt.savefig("cumulative_fraction_covered.png", dpi=600)
+		plt.savefig("./plots/cumulative_fraction_covered.png", dpi=600)
 
 	    # REMOVE THIS ONCE YOU IMPLEMENT THIS FUNCTION
 		#raise UnimplementedFunctionError("You have not yet implemented make_vocab_charts.")

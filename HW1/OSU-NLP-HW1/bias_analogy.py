@@ -26,3 +26,22 @@ if __name__ == "__main__":
     analogy('man', 'victim', 'woman')
     analogy('woman', 'victim', 'man')
 
+    analogy('Paris', 'France', 'Tokyo')
+    analogy('morning', 'breakfast', 'evening')
+    analogy('walking', 'walk', 'swimming')
+
+    #====================
+
+    analogy('teacher', 'school', 'doctor')
+    analogy('sun', 'daytime', 'moon')
+    analogy('Japan', 'sushi', 'Italy')
+
+    #====================
+    analogy('man', 'computer_programmer', 'woman')
+    analogy('woman', 'computer_programmer', 'man')
+
+    #=====================
+    analogy('Christian', 'good', 'Muslim')
+    analogy('Muslim', 'good', 'Christian')
+
+

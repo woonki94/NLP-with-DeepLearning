@@ -103,7 +103,9 @@ def compute_ppmi_matrix(corpus, vocab):
 	marginal_prob_row = row_sums / total
 	marginal_prob_col = col_sums / total
 
-	pmi = np.log(joint_prob/(marginal_prob_row *marginal_prob_col +1e-8)+1e-8)
+	expected = np.dot(marginal_prob_row, marginal_prob_col)
+
+	pmi = np.log(joint_prob/(expected +1e-8)+1e-8)
 	ppmi = np.maximum(pmi, 0)
 
 	return ppmi
@@ -150,8 +152,8 @@ def main_freq():
 
 	logging.info("Preparing T-SNE plot")
 	plot_word_vectors_tsne(word_vectors, vocab)
-
-	plot_zoomed_tsne(word_vectors, vocab, xlim=(10, 30), ylim=(40, 50))
+	plot_zoomed_tsne(word_vectors, vocab,'tsne_zoomed01', xlim=(15, 25), ylim=(55, 65))
+	plot_zoomed_tsne(word_vectors, vocab, 'tsne_zoomed01', xlim=(-60,-50), ylim=(-5,5))
 
 def dim_reduce(PPMI, k=16):
 	U, Sigma, VT = randomized_svd(PPMI, n_components=k, n_iter=10, random_state=42)
@@ -166,12 +168,13 @@ def dim_reduce(PPMI, k=16):
 	return word_vectors
 
 
-def plot_word_vectors_tsne(word_vectors, vocab):
+def plot_word_vectors_tsne(word_vectors, vocab, filename = 'tsne.png'):
 	coords = TSNE(metric="cosine", perplexity=50, random_state=42).fit_transform(word_vectors)
 
-	plt.figure(figsize=(16, 10), dpi=300)
 	plt.cla()
 	top_word_idx = vocab.text2idx(" ".join(vocab.most_common(1000)))
+
+	plt.figure(figsize=(16, 10), dpi=300)
 	plt.plot(coords[top_word_idx,0], coords[top_word_idx,1], 'o', markerfacecolor='none', markeredgecolor='k', alpha=0.5, markersize=3)
 
 	for i in tqdm(top_word_idx):
@@ -181,14 +184,18 @@ def plot_word_vectors_tsne(word_vectors, vocab):
 			textcoords='offset points',
 			ha='right',
 			va='bottom',
-			fontsize=5
-		)
-	plt.show()
-	plt.savefig("tsne_large.png", dpi=300)
+			fontsize=5)
 
-def plot_zoomed_tsne(word_vectors, vocab, xlim=(-50, -30), ylim=(10, 30)):
+	#plt.show()
+	#plt.savefig("./plots/tsne.png", dpi=300)
+	output_path = os.path.join('./plots', filename)
+	plt.savefig(output_path, dpi=300)
+
+
+def plot_zoomed_tsne(word_vectors, vocab,filename, xlim=(-80, -60), ylim=(-10, 10)):
 	coords = TSNE(metric="cosine", perplexity=50, random_state=42).fit_transform(word_vectors)
 
+	plt.cla()
 	top_word_idx = vocab.text2idx(" ".join(vocab.most_common(1000)))
 
 	# Filter for points inside the zoom window
@@ -211,8 +218,9 @@ def plot_zoomed_tsne(word_vectors, vocab, xlim=(-50, -30), ylim=(10, 30)):
 	plt.xlim(xlim)
 	plt.ylim(ylim)
 	plt.tight_layout()
-	plt.savefig("tsne_zoomed.png", dpi=300)
-	plt.show()
+	output_path = os.path.join('./plots', filename)
+	plt.savefig(output_path, dpi=300)
+	#plt.show()
 
 if __name__ == "__main__":
     main_freq()
